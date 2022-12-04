@@ -42,40 +42,43 @@ exports.myOrders = catchAsyncErrors(async (req, res, next) => {
 });
 // Get All order system
 exports.getOrderSystem = catchAsyncErrors(async (req, res, next) => {
+  const ordersSystemCount = await OrderSystem.countDocuments();
   const ordersSystem = await OrderSystem.find();
-  let totalAmount = 0;
+  let totalAmountCash = 0;
   ordersSystem.forEach((order) => {
-    totalAmount += order.totalPrice;
+    totalAmountCash += order.totalPrice;
   });
   res.status(200).json({
     success: true,
-    totalAmount,
+    totalAmountCash,
     ordersSystem,
+    ordersSystemCount,
   });
 });
 // update Order Status
 exports.updateOrderSystem = catchAsyncErrors(async (req, res, next) => {
-  const order = await OrderSystem.findById(req.params.id);
+  const orderSystem = await OrderSystem.findById(req.params.id);
 
-  if (!order) {
+  if (!orderSystem) {
     return next(new ErrorHander("Không tìm thấy đơn đặt hàng với Id này", 404));
   }
 
-  if (order.orderStatus === "Đã xong") {
+  if (orderSystem.orderStatus === "Đã hoàn thành") {
     return next(new ErrorHander("Đã thanh toán thành công", 400));
   }
-  if (req.body.orderStatus === "Đang xử lý") {
-    order.orderItems.forEach(async (o) => {
+
+  if (req.body.status === "Đang giao") {
+    orderSystem.orderItems.forEach(async (o) => {
       await updateStock(o.product, o.quantity);
     });
   }
-  order.orderStatus = req.body.status;
+  orderSystem.orderStatus = req.body.status;
 
-  if (req.body.orderStatus === "Đang xử lý") {
-    order.deliveredAt = Date.now();
+  if (req.body.status === "Đã hoàn thành") {
+    orderSystem.deliveredAt = Date.now();
   }
 
-  await order.save({ validateBeforeSave: false });
+  await orderSystem.save({ validateBeforeSave: false });
   res.status(200).json({
     success: true,
   });

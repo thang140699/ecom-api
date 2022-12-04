@@ -85,18 +85,18 @@ exports.updateOrder = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHander("Không tìm thấy đơn đặt hàng với Id này", 404));
   }
 
-  if (order.orderStatus === "Đã xong") {
+  if (order.orderStatus === "Đã hoàn thành") {
     return next(new ErrorHander("Đã thanh toán thành công", 400));
   }
 
-  if (req.body.status === "Đang xử lý") {
+  if (req.body.status === "Đang giao") {
     order.orderItems.forEach(async (o) => {
       await updateStock(o.product, o.quantity);
     });
   }
   order.orderStatus = req.body.status;
 
-  if (req.body.status === "Đã xong") {
+  if (req.body.status === "Đã hoàn thành") {
     order.deliveredAt = Date.now();
   }
 
