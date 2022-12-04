@@ -10,10 +10,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Nhập mô tả"],
   },
-  info: {
-    type: String,
-    required: [true, "Nhập thông tin sản phẩm"],
-  },
+
   promotion: {
     type: String,
     // required: [true, "Nhập giá"],
@@ -27,7 +24,7 @@ const productSchema = new mongoose.Schema({
   },
   productLine: {
     type: String,
-    required: [true, "Nhập dòng sản phẩm"],
+    required: ["Nhập dòng sản phẩm"],
   },
   supplier: {
     type: String,
